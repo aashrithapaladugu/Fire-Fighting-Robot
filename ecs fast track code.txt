@@ -1,0 +1,199 @@
+#include <Servo.h>
+Servo myservo;  // create servo object to control a servo
+// twelve servo objects can be created on most boards
+int pos = 0; 
+int f1s=A0;
+int f2s=A1;
+int m1=2;
+int m2=3;
+int m3=4;
+int m4=5;
+int md=0;
+int relay=A5;
+int x;
+int cam=12;
+const int pingPin =9; // Trigger Pin of Ultrasonic Sensor
+const int echoPin =10; // Echo Pin of Ultrasonic Sensor
+long duration;
+int distance;
+int gas=A2;
+int ss=8;
+void setup() {
+pinMode(pingPin,OUTPUT);
+pinMode(echoPin,INPUT);
+pinMode(ss,INPUT);
+pinMode(gas,INPUT);
+pinMode(cam,OUTPUT);
+digitalWrite(cam,0);
+myservo.attach(A3);
+  Serial.begin(9600);
+  //lcd.print("WELCOME");
+  pinMode(m1,OUTPUT);
+  pinMode(m2,OUTPUT);
+  pinMode(m3,OUTPUT);
+  pinMode(m4,OUTPUT);
+  pinMode(relay,OUTPUT);
+  digitalWrite(relay,0);
+ // servo1.write(70);
+  digitalWrite(m1,0);
+   digitalWrite(m2,0);
+   digitalWrite(m3,0);
+   digitalWrite(m4,0); 
+}
+void loop() 
+{ 
+ digitalWrite(pingPin,LOW);
+delayMicroseconds(2);
+digitalWrite(pingPin,HIGH);
+delayMicroseconds(10);
+digitalWrite(pingPin, LOW);
+duration = pulseIn(echoPin, HIGH);
+distance=duration*0.034/2; 
+//Serial.println(distance);
+int gval=digitalRead(gas);
+int sval=digitalRead(ss);
+int f1val=analogRead(f1s)/11;
+int f2val=analogRead(f2s)/11;
+if(sval==0||gval<1)
+{
+  Serial.print("Smoke detected,0\n");
+}
+else
+{
+  digitalWrite(cam,0);
+}
+  x=Serial.read();
+ if(x=='1')
+  {
+    md=0;
+    
+  }
+    if(md==0)
+   {
+    if(distance<30)
+    {
+       digitalWrite(m1,0);
+       digitalWrite(m2,1);
+       digitalWrite(m3,1);
+       digitalWrite(m4,0);
+    }
+    if(f1val<40)
+   {
+    Serial.print("Fire detected,0\n");
+    digitalWrite(m1,0);
+    digitalWrite(m2,0);
+    digitalWrite(m3,0);
+    digitalWrite(m4,0);
+    delay(1500);
+    digitalWrite(m1,0);
+    digitalWrite(m2,1);
+    digitalWrite(m3,1);
+    digitalWrite(m4,0);
+    digitalWrite(cam,1);   
+    delay(2000); 
+    digitalWrite(m1,0);
+    digitalWrite(m2,0);
+    digitalWrite(m3,0);
+    digitalWrite(m4,0); 
+     for (pos = 0; pos <= 80; pos += 1) { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo.write(pos); 
+     digitalWrite(relay,1);// tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
+  for (pos = 80; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
+    delay(4000);
+    digitalWrite(relay,0);
+    digitalWrite(cam,0);
+    }
+ if(f2val<40)
+  {   Serial.print("Fire detected,0\n");
+    digitalWrite(m1,1);
+    digitalWrite(m2,0);
+    digitalWrite(m3,0);
+    digitalWrite(m4,1);
+    digitalWrite(cam,1);
+    delay(2000);
+     digitalWrite(m1,0);
+    digitalWrite(m2,0);
+    digitalWrite(m3,0);
+    digitalWrite(m4,0);   
+    for (pos = 0; pos <= 80; pos += 1) 
+    { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo.write(pos); 
+    digitalWrite(relay,1);// tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }
+  for (pos = 80; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+  }  
+    delay(4000);
+    digitalWrite(relay,0);
+    digitalWrite(cam,0);
+   }
+    else
+    {
+        digitalWrite(m1,0);
+        digitalWrite(m2,1);
+        digitalWrite(m3,0);
+        digitalWrite(m4,1);
+    }
+   }
+ if(x=='2')
+  {
+    Serial.println("Control mode");
+   
+    md=1;
+   }
+   if(md==1)
+   {
+    if(x=='3')
+   {
+    digitalWrite(m1,1);
+    digitalWrite(m2,0);
+    digitalWrite(m3,1);
+    digitalWrite(m4,0);
+  }
+   if(x=='4')
+  {
+   digitalWrite(m1,0);
+   digitalWrite(m2,1);
+   digitalWrite(m3,1);
+   digitalWrite(m4,0);
+  }
+   if(x=='5')
+  {
+   digitalWrite(m1,1);
+   digitalWrite(m2,0);
+   digitalWrite(m3,0);
+   digitalWrite(m4,1);
+ }
+   if(x=='6')
+  {
+   digitalWrite(m1,0);
+   digitalWrite(m2,1);
+   digitalWrite(m3,0);
+   digitalWrite(m4,1);
+  }
+   if(x=='7')
+  {
+    digitalWrite(m1,0);
+    digitalWrite(m2,0);
+    digitalWrite(m3,0);
+    digitalWrite(m4,0);
+   }
+  if(x=='8')
+  {
+    digitalWrite(relay,1);
+  }
+ if(x=='9')
+ {
+  digitalWrite(relay,0);
+ }
+ }
+}
